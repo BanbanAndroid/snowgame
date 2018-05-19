@@ -1,6 +1,6 @@
 SinuousWorld = new function() {
   var from = "n1Q8PYm1A3n4ejR1HXejeLFJakKTjb3Sutz";
-  var dappAddress = "n1hEHZKNhmcG5GdRPhj24EgANVSuqWogbqY";
+  var dappAddress = "n1mX83PghG5DE1KaE73YDGdEXJLp5naT61y";
   var NebPay = require("nebpay");
   var nebPay = new NebPay();
   var date = 0;
@@ -38,8 +38,8 @@ SinuousWorld = new function() {
 
   this.init = function() {
     var nebulas = require("nebulas"),
-      neb = new nebulas.Neb();
-    neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
+    neb = new nebulas.Neb();
+    neb.setRequest(new nebulas.HttpRequest("https://mainnet.nebulas.io"));
     var value = "0";
     var nonce = "0";
     var gas_price = "1000000";
