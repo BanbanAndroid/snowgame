@@ -4,6 +4,7 @@ SinuousWorld = new function() {
   var NebPay = require("nebpay");
   var nebPay = new NebPay();
   var date = 0;
+  var start = false;
 
   var isMobile =
     navigator.userAgent.toLowerCase().indexOf("android") != -1 ||
@@ -38,7 +39,7 @@ SinuousWorld = new function() {
 
   this.init = function() {
     var nebulas = require("nebulas"),
-    neb = new nebulas.Neb();
+      neb = new nebulas.Neb();
     neb.setRequest(new nebulas.HttpRequest("https://mainnet.nebulas.io"));
     var value = "0";
     var nonce = "0";
@@ -68,7 +69,9 @@ SinuousWorld = new function() {
         //cbSearch(err)
         console.log("error:" + err.message);
       });
-
+    if (typeof webExtensionWallet === "undefined") {
+      $("#noExtension").attr("style", "display:block;");
+    }
     canvas = document.getElementById("world");
     status = document.getElementById("status");
     message = document.getElementById("message");
@@ -97,43 +100,46 @@ SinuousWorld = new function() {
   };
 
   function startButtonClickHandler(event) {
-    event.preventDefault();
-    var value = "0";
-    var callFunction = "applyToPlay";
-    var callArgs = [];
-    date = new Date().getTime();
-    console.log(date + "");
-    callArgs.push(date + "");
-    nebPay.call(dappAddress, value, callFunction, JSON.stringify(callArgs), {
-      //使用nebpay的call接口去调用合约,
-      listener: function(resp) {
-        var result = JSON.stringify(resp);
-        // console.log("resp:" + resp.toString);
-        // console.log("result" + result);
-        if (result.indexOf("txhash") > -1) {
-          if (playing == false) {
-            playing = true;
+    if (start == true) {
+      if (playing == false) {
+        playing = true;
 
-            enemies = [];
-            boosts = [];
-            score = 0;
-            difficulty = 1;
+        enemies = [];
+        boosts = [];
+        score = 0;
+        difficulty = 1;
 
-            player.trail = [];
-            player.position.x = mouseX;
-            player.position.y = mouseY;
-            player.boost = 0;
+        player.trail = [];
+        player.position.x = mouseX;
+        player.position.y = mouseY;
+        player.boost = 0;
 
-            message.style.display = "none";
-            status.style.display = "block";
+        message.style.display = "none";
+        status.style.display = "block";
 
-            time = new Date().getTime();
-          }
-        } else if (result.indexOf("Error") > -1) {
-          console.log("listener:" + resp);
-        }
+        time = new Date().getTime();
       }
-    });
+    } else {
+      event.preventDefault();
+      var value = "0";
+      var callFunction = "applyToPlay";
+      var callArgs = [];
+      date = new Date().getTime();
+      console.log(date + "");
+      callArgs.push(date + "");
+      nebPay.call(dappAddress, value, callFunction, JSON.stringify(callArgs), {
+        //使用nebpay的call接口去调用合约,
+        listener: function(resp) {
+          var result = JSON.stringify(resp);
+          if (result.indexOf("txhash") > -1) {
+            start = true;
+          } else if (result.indexOf("Error") > -1) {
+            console.log("listener:" + resp);
+            start = false;
+          }
+        }
+      });
+    }
   }
 
   var toast = function(msg, duration) {
@@ -155,6 +161,7 @@ SinuousWorld = new function() {
   };
 
   function gameOver() {
+    start = false;
     playing = false;
     var allTime = Math.round((new Date().getTime() - time) / 1000 * 100) / 100;
     message.style.display = "block";
